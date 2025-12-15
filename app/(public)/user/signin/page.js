@@ -11,7 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 function SignInForm() {
   const [email, setEmail] = useState("");
