@@ -1,56 +1,83 @@
 "use client";
 
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
+import { useAuth } from "@/lib/auth-context";
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from "@/lib/auth-context";
 
-export default function RegisterPage() {
+export default function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+  const [registerError, setRegisterError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { user } = useAuth();
 
   if (user) {
-    router.push("/");
     return null;
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+  const auth = getAuth();
 
+  const onSubmit = (e) => {
+    e.preventDefault();
+    setRegisterError("");
+
+    // Walidacja równości haseł
     if (password !== confirmPassword) {
-      setError("Hasła nie są zgodne");
+      setRegisterError("Hasła nie są zgodne");
       return;
     }
 
     if (password.length < 6) {
-      setError("Hasło musi mieć co najmniej 6 znaków");
+      setRegisterError("Hasło musi mieć co najmniej 6 znaków");
       return;
     }
 
     setLoading(true);
 
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      router.push("/");
-    } catch (error) {
-      if (error.code === "auth/email-already-in-use") {
-        setError("Ten adres email jest już używany");
-      } else if (error.code === "auth/invalid-email") {
-        setError("Nieprawidłowy adres email");
-      } else {
-        setError("Błąd rejestracji: " + error.message);
-      }
-    } finally {
-      setLoading(false);
-    }
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        console.log("User registered!");
+        sendEmailVerification(auth.currentUser)
+          .then(() => {
+            console.log("Email verification sent!");
+            router.push("/user/verify");
+          })
+          .catch((error) => {
+            setRegisterError(
+              "Błąd wysyłania emaila weryfikacyjnego: " + error.message
+            );
+            console.dir(error);
+          });
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+
+        // Obsługa błędów rejestracji
+        if (errorCode === "auth/email-already-in-use") {
+          setRegisterError(
+            "Ten adres email jest już zarejestrowany. Użyj innego adresu lub zaloguj się."
+          );
+        } else if (errorCode === "auth/invalid-email") {
+          setRegisterError("Nieprawidłowy format adresu email");
+        } else if (errorCode === "auth/weak-password") {
+          setRegisterError("Hasło jest za słabe. Użyj co najmniej 6 znaków.");
+        } else {
+          setRegisterError(errorMessage);
+        }
+        console.dir(error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -69,13 +96,32 @@ export default function RegisterPage() {
             Rejestracja
           </h2>
 
-          {error && (
-            <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {error}
+          {registerError && (
+            <div
+              role="alert"
+              className="mb-4 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded"
+            >
+              <div className="flex items-start">
+                <svg
+                  className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <div>
+                  <p className="font-medium">Błąd rejestracji</p>
+                  <p className="text-sm">{registerError}</p>
+                </div>
+              </div>
             </div>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={onSubmit}>
             <div className="relative mb-4">
               <label
                 htmlFor="email"

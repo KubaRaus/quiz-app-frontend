@@ -36,24 +36,28 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             {user ? (
               <>
-                {/* User Email */}
+                {/* User Info with Photo */}
                 <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  {/* Warunkowe renderowanie zdjęcia profilowego */}
+                  {user.photoURL ? (
+                    <img
+                      src={user.photoURL}
+                      alt="Profile"
+                      className="h-7 w-7 rounded-full object-cover border border-gray-300"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        e.target.nextElementSibling.style.display = "flex";
+                      }}
                     />
-                  </svg>
+                  ) : null}
+                  {!user.photoURL && (
+                    <div className="h-7 w-7 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold">
+                      {user.displayName?.charAt(0)?.toUpperCase() ||
+                        user.email?.charAt(0)?.toUpperCase()}
+                    </div>
+                  )}
                   <span className="text-sm text-gray-700 font-medium">
-                    {user.email}
+                    {user.displayName || user.email}
                   </span>
                 </div>
 

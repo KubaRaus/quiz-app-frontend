@@ -146,13 +146,14 @@ Każdy komponent quizowy posiada:
 
 ## 👨‍💻 Autor
 
-**Jakub Kowalski**  
+**Jakub Raus**  
 Student Informatyki  
 Projekt zaliczeniowy - Frontend Laboratory
 
 ## 📄 Licencja
 
-Projekt edukacyjny - Frontend Laboratory 2025
+Projekt edukacyjny - Frontend Laboratory 2025  
+Autor: Jakub Raus
 
 ---
 

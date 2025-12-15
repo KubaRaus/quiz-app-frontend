@@ -50,6 +50,20 @@ export default function SignInPage() {
         return signInWithEmailAndPassword(auth, email, password);
       })
       .then((userCredential) => {
+        // Sprawdź czy email jest zweryfikowany
+        if (!userCredential.user.emailVerified) {
+          console.log("Email not verified, redirecting to verify page");
+          setError(
+            "Twój adres email nie został jeszcze zweryfikowany. Sprawdź swoją skrzynkę pocztową i kliknij w link weryfikacyjny."
+          );
+          setLoading(false);
+          // Opóźnione przekierowanie do strony weryfikacji
+          setTimeout(() => {
+            router.push("/user/verify");
+          }, 3000);
+          return;
+        }
+
         // Po udanym logowaniu, przekieruj do returnUrl lub głównej
         if (returnUrl) {
           router.push(returnUrl);

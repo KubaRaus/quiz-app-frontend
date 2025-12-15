@@ -257,12 +257,25 @@ export default function Sidebar() {
           {user && (
             <div className="p-4 border-t border-gray-200">
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold">
-                  {user.email?.charAt(0).toUpperCase()}
-                </div>
+                {/* Warunkowe renderowanie zdjęcia profilowego */}
+                {user.photoURL ? (
+                  <img
+                    src={user.photoURL}
+                    alt="Profile"
+                    className="w-10 h-10 rounded-full object-cover border-2 border-gray-300"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div className="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold">
+                    {user.displayName?.charAt(0)?.toUpperCase() ||
+                      user.email?.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div className="ml-3 flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">
-                    {user.email}
+                    {user.displayName || user.email}
                   </p>
                   <p className="text-xs text-gray-500">Zalogowany</p>
                 </div>
@@ -272,7 +285,9 @@ export default function Sidebar() {
 
           {/* Sidebar Footer */}
           <div className="p-4 border-t border-gray-200 bg-gray-50">
-            <p className="text-xs text-gray-500 text-center">© 2025 Quiz App</p>
+            <p className="text-xs text-gray-500 text-center">
+              © 2025 Quiz App | Jakub Raus
+            </p>
           </div>
         </div>
       </aside>

@@ -242,11 +242,11 @@ export default function AboutPage() {
             <div className="p-4 lg:w-1/3 md:w-1/2">
               <div className="h-full flex flex-col items-center text-center">
                 <div className="w-32 h-32 bg-indigo-500 rounded-full flex items-center justify-center text-white text-4xl font-bold mb-4">
-                  JK
+                  JR
                 </div>
                 <div className="w-full">
                   <h3 className="title-font font-medium text-lg text-gray-900">
-                    Jakub Kowalski
+                    Jakub Raus
                   </h3>
                   <h4 className="text-gray-500 mb-3">Student Informatyki</h4>
                   <p className="mb-4">

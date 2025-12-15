@@ -5,7 +5,7 @@ export default function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between">
           {/* Copyright */}
           <p className="text-sm text-gray-500 text-center sm:text-left">
-            © 2025 Quiz App - Projekt Frontend Laboratory
+            © 2025 Quiz App - Projekt Frontend Laboratory | Autor: Jakub Raus
           </p>
 
           {/* Social Links */}
