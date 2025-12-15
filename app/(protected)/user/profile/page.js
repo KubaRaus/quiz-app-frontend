@@ -6,6 +6,8 @@ import { updateProfile } from "firebase/auth";
 import { db } from "@/lib/firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
+export const dynamic = 'force-dynamic';
+
 export default function ProfilePage() {
   const { user } = useAuth();
   const [displayName, setDisplayName] = useState("");

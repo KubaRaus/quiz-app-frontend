@@ -1,3 +1,5 @@
+"use client";
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
@@ -15,10 +17,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "Quiz App - Aplikacja Quizowa",
-  description: "Interaktywna aplikacja do tworzenia i rozwiązywania quizów",
-};
+export const dynamic = 'force-dynamic';
 
 export default function RootLayout({ children }) {
   return (

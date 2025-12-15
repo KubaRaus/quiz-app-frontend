@@ -5,6 +5,8 @@ import { useAuth } from "@/lib/auth-context";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 
+export const dynamic = 'force-dynamic';
+
 export default function QuizResultsPage() {
   const { user } = useAuth();
   const [results, setResults] = useState([]);

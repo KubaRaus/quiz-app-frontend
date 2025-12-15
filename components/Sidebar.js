@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const { user } = useAuth();
 
   const toggleSidebar = () => {
@@ -178,6 +179,13 @@ export default function Sidebar() {
         <div
           className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={toggleSidebar}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              toggleSidebar();
+            }
+          }}
         />
       )}
 
@@ -249,7 +257,6 @@ export default function Sidebar() {
                   <li key={item.path}>
                     <Link
                       href={item.path}
-                      onClick={() => setIsOpen(false)}
                       className={`
                         flex items-center px-4 py-3 rounded-lg transition-colors
                         ${

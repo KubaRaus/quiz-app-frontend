@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import {
   signInWithEmailAndPassword,
   setPersistence,
@@ -11,7 +11,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 
-export default function SignInPage() {
+export const dynamic = 'force-dynamic';
+
+function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -190,5 +192,13 @@ export default function SignInPage() {
         </div>
       </div>
     </section>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div>Ładowanie...</div>}>
+      <SignInForm />
+    </Suspense>
   );
 }
