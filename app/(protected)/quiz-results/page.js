@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+// Remove top-level Firestore import; use dynamic import inside effect
 
 export const dynamic = "force-dynamic";
 

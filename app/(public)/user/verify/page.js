@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAuth, signOut } from "firebase/auth";
+// Remove top-level Firebase import; use dynamic import inside handler
 import { useAuth } from "@/lib/auth-context";
 import Link from "next/link";
 

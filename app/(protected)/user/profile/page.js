@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { updateProfile } from "firebase/auth";
+// Remove top-level Firebase imports to avoid SSR issues
+// We'll dynamically import Firebase modules when needed in effects/handlers
 import { db } from "@/lib/firebase";
-import { doc, setDoc, getDoc } from "firebase/firestore";
 
 export const dynamic = "force-dynamic";
 

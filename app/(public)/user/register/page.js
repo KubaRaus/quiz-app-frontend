@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-} from "firebase/auth";
+// Firebase imports removed; use dynamic import in submit handler
 import { useAuth } from "@/lib/auth-context";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -23,7 +19,7 @@ export default function RegisterForm() {
     return null;
   }
 
-  const auth = getAuth();
+  // Auth instance will be obtained dynamically inside onSubmit
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -42,7 +38,34 @@ export default function RegisterForm() {
 
     setLoading(true);
 
-    createUserWithEmailAndPassword(auth, email, password)
+    Promise.all([
+      import("firebase/auth"),
+      import("@/lib/firebase"),
+    ])
+      .then(([authModule, firebaseLib]) => {
+        const { createUserWithEmailAndPassword, sendEmailVerification } = authModule;
+        const { getFirebaseAuth } = firebaseLib;
+        const auth = getFirebaseAuth();
+        if (!auth) {
+          throw new Error("Firebase auth niedostępny na serwerze");
+        }
+
+        return createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            console.log("User registered!");
+            return sendEmailVerification(auth.currentUser)
+              .then(() => {
+                console.log("Email verification sent!");
+                router.push("/user/verify");
+              })
+              .catch((error) => {
+                setRegisterError(
+                  "Błąd wysyłania emaila weryfikacyjnego: " + error.message
+                );
+                console.dir(error);
+              });
+          });
+      })
       .then((userCredential) => {
         console.log("User registered!");
         sendEmailVerification(auth.currentUser)

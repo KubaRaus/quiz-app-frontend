@@ -5,7 +5,7 @@ import SingleChoiceQuestion from "@/components/quiz/SingleChoiceQuestion";
 import MultipleChoiceQuestion from "@/components/quiz/MultipleChoiceQuestion";
 import FillInBlanksQuestion from "@/components/quiz/FillInBlanksQuestion";
 import MatchPairsQuestion from "@/components/quiz/MatchPairsQuestion";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+// Remove top-level Firestore import; use dynamic import inside handler
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/auth-context";
 

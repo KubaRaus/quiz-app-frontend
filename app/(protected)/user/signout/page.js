@@ -1,6 +1,6 @@
 "use client";
 
-import { signOut } from "firebase/auth";
+// Remove top-level Firebase import; use dynamic import inside handler
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";

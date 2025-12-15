@@ -1,12 +1,6 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import {
-  signInWithEmailAndPassword,
-  setPersistence,
-  browserSessionPersistence,
-} from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
@@ -44,12 +38,22 @@ function SignInForm() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
-    // Ustaw persistence na sesję przeglądarki
-    setPersistence(auth, browserSessionPersistence)
-      .then(() => {
-        // Po ustawieniu persistence, zaloguj użytkownika
-        return signInWithEmailAndPassword(auth, email, password);
+    // Dynamicznie importuj Firebase tylko po stronie klienta
+    Promise.all([
+      import("firebase/auth"),
+      import("@/lib/firebase"),
+    ])
+      .then(([authModule, firebaseLib]) => {
+        const { setPersistence, browserSessionPersistence, signInWithEmailAndPassword } = authModule;
+        const { getFirebaseAuth } = firebaseLib;
+        const auth = getFirebaseAuth();
+        if (!auth) {
+          throw new Error("Firebase auth niedostępny na serwerze");
+        }
+        // Ustaw persistence na sesję przeglądarki
+        return setPersistence(auth, browserSessionPersistence).then(() =>
+          signInWithEmailAndPassword(auth, email, password)
+        );
       })
       .then((userCredential) => {
         // TYMCZASOWO WYŁĄCZONE - sprawdzanie weryfikacji emaila
