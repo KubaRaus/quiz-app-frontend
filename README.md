@@ -1,36 +1,192 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Quiz App - Aplikacja Quizowa
 
-## Getting Started
+Interaktywna aplikacja webowa do tworzenia i rozwiązywania quizów, stworzona z wykorzystaniem Next.js, Firebase i Tailwind CSS.
 
-First, run the development server:
+## 📋 Opis projektu
+
+Aplikacja quizowa spełniająca wszystkie wymagania projektu zaliczeniowego:
+
+### Wymagania spełnione:
+
+- ✅ **Uwierzytelnianie użytkowników** - Firebase Authentication (email/hasło)
+- ✅ **Autoryzacja** - chronione trasy dostępne tylko dla zalogowanych użytkowników
+- ✅ **Responsywne stylowanie** - Tailwind CSS z obsługą mobile, tablet, desktop
+- ✅ **Strona o autorze i aplikacji** - dedykowana strona `/about`
+- ✅ **Zapis danych** - Firestore do przechowywania wyników quizów
+- ✅ **Prezentacja komponentów** - strona `/quiz` z demonstracją wszystkich typów pytań
+
+### Typy pytań quizowych:
+
+1. **Pojedynczy wybór** - opcje tekstowe lub obrazkowe, jedna poprawna odpowiedź
+2. **Wielokrotny wybór** - wiele poprawnych odpowiedzi
+3. **Uzupełnianie luk** - wybór słów z listy opcji
+4. **Dopasowywanie par** - łączenie powiązanych elementów
+
+## 🚀 Technologie
+
+- **Next.js 16** - Framework React z App Router
+- **Tailwind CSS** - Stylowanie (komponenty z Tailblocks.cc)
+- **Firebase** - Authentication & Firestore Database
+- **React Context API** - Zarządzanie stanem uwierzytelniania
+
+## 📁 Struktura projektu
+
+```
+frontend-laboratory-app/
+├── app/
+│   ├── (public)/
+│   │   └── user/
+│   │       ├── signin/          # Strona logowania
+│   │       └── register/        # Strona rejestracji
+│   ├── (protected)/
+│   │   ├── layout.js           # Layout dla chronionych tras
+│   │   └── user/
+│   │       ├── profile/        # Profil użytkownika
+│   │       ├── changepassword/ # Zmiana hasła
+│   │       └── signout/        # Wylogowanie
+│   ├── about/                   # Strona o aplikacji
+│   ├── quiz/                    # Demonstracja komponentów quizowych
+│   ├── layout.js               # Główny layout
+│   ├── page.js                 # Strona główna
+│   └── globals.css             # Style globalne
+├── components/
+│   ├── quiz/
+│   │   ├── SingleChoiceQuestion.js
+│   │   ├── MultipleChoiceQuestion.js
+│   │   ├── FillInBlanksQuestion.js
+│   │   └── MatchPairsQuestion.js
+│   ├── Navbar.js               # Nawigacja
+│   └── Footer.js               # Stopka
+├── lib/
+│   ├── firebase.js             # Konfiguracja Firebase
+│   └── auth-context.js         # Context uwierzytelniania
+├── middleware.js               # Middleware do ochrony tras
+└── .env.local                  # Zmienne środowiskowe (do uzupełnienia)
+```
+
+## ⚙️ Instalacja i uruchomienie
+
+### 1. Instalacja zależności
+
+```bash
+cd frontend-laboratory-app
+npm install firebase
+```
+
+### 2. Konfiguracja Firebase
+
+1. Utwórz projekt w [Firebase Console](https://console.firebase.google.com/)
+2. Włącz **Authentication** → Email/Password
+3. Utwórz bazę danych **Firestore**
+4. W Project Settings → Your apps → dodaj aplikację Web
+5. Skopiuj konfigurację Firebase
+
+### 3. Zmienne środowiskowe
+
+Uzupełnij plik `.env.local` danymi z Firebase:
+
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+```
+
+### 4. Uruchomienie aplikacji
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aplikacja będzie dostępna pod adresem: [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 🎯 Funkcjonalności
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Publiczne strony:
 
-## Learn More
+- **/** - Strona główna z informacjami o aplikacji
+- **/about** - O aplikacji i autorze
+- **/user/signin** - Logowanie
+- **/user/register** - Rejestracja
 
-To learn more about Next.js, take a look at the following resources:
+### Chronione strony (wymagane logowanie):
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **/quiz** - Demonstracja wszystkich typów pytań quizowych
+- **/user/profile** - Profil użytkownika
+- **/user/changepassword** - Zmiana hasła
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📱 Responsywność
 
-## Deploy on Vercel
+Aplikacja jest w pełni responsywna i dostosowana do trzech głównych rozmiarów ekranu:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Mobile** (< 768px)
+- **Tablet** (768px - 1024px)
+- **Desktop** (> 1024px)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🎨 Komponenty quizowe
+
+Każdy komponent quizowy posiada:
+
+- Tytuł pytania
+- Treść z obsługą HTML
+- Interaktywną część użytkownika
+- Walidację odpowiedzi
+- Feedback wizualny (poprawna/niepoprawna)
+- Przycisk zatwierdzenia i ponownej próby
+- Zapis wyniku do Firestore (dla zalogowanych użytkowników)
+
+## 🔒 Bezpieczeństwo
+
+- Uwierzytelnianie przez Firebase Authentication
+- Ochrona tras za pomocą middleware
+- Walidacja po stronie klienta i serwera
+- Bezpieczne przechowywanie danych w Firestore
+
+## 👨‍💻 Autor
+
+**Jakub Kowalski**  
+Student Informatyki  
+Projekt zaliczeniowy - Frontend Laboratory
+
+## 📄 Licencja
+
+Projekt edukacyjny - Frontend Laboratory 2025
+
+---
+
+## 🛠️ Polecenia deweloperskie
+
+```bash
+# Uruchomienie w trybie deweloperskim
+npm run dev
+
+# Build produkcyjny
+npm run build
+
+# Start produkcyjny
+npm start
+
+# Linting
+npm run lint
+```
+
+## 📚 Dokumentacja techniczna
+
+### Biblioteka komponentów
+
+Wykorzystano komponenty z [Tailblocks](https://tailblocks.cc/) - darmowa biblioteka komponentów Tailwind CSS.
+
+### Firebase Rules (zalecane)
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /quiz-results/{document} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+  }
+}
+```
