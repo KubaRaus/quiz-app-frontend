@@ -38,20 +38,18 @@ export default function RegisterForm() {
 
     setLoading(true);
 
-    Promise.all([
-      import("firebase/auth"),
-      import("@/lib/firebase"),
-    ])
+    Promise.all([import("firebase/auth"), import("@/lib/firebase")])
       .then(([authModule, firebaseLib]) => {
-        const { createUserWithEmailAndPassword, sendEmailVerification } = authModule;
+        const { createUserWithEmailAndPassword, sendEmailVerification } =
+          authModule;
         const { getFirebaseAuth } = firebaseLib;
         const auth = getFirebaseAuth();
         if (!auth) {
           throw new Error("Firebase auth niedostępny na serwerze");
         }
 
-        return createUserWithEmailAndPassword(auth, email, password)
-          .then((userCredential) => {
+        return createUserWithEmailAndPassword(auth, email, password).then(
+          (userCredential) => {
             console.log("User registered!");
             return sendEmailVerification(auth.currentUser)
               .then(() => {
@@ -64,7 +62,8 @@ export default function RegisterForm() {
                 );
                 console.dir(error);
               });
-          });
+          }
+        );
       })
       .then((userCredential) => {
         console.log("User registered!");

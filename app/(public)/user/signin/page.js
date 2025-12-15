@@ -39,12 +39,13 @@ function SignInForm() {
     setError("");
     setLoading(true);
     // Dynamicznie importuj Firebase tylko po stronie klienta
-    Promise.all([
-      import("firebase/auth"),
-      import("@/lib/firebase"),
-    ])
+    Promise.all([import("firebase/auth"), import("@/lib/firebase")])
       .then(([authModule, firebaseLib]) => {
-        const { setPersistence, browserSessionPersistence, signInWithEmailAndPassword } = authModule;
+        const {
+          setPersistence,
+          browserSessionPersistence,
+          signInWithEmailAndPassword,
+        } = authModule;
         const { getFirebaseAuth } = firebaseLib;
         const auth = getFirebaseAuth();
         if (!auth) {
