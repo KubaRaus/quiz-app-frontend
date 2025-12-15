@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { useState, useEffect } from "react";
+import {
+  signInWithEmailAndPassword,
+  setPersistence,
+  browserSessionPersistence,
+} from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 
@@ -13,26 +17,66 @@ export default function SignInPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
 
+  // Pobierz returnUrl z parametrów query
+  const returnUrl = searchParams.get("returnUrl");
+
+  useEffect(() => {
+    if (user) {
+      // Sprawdź czy istnieje parametr returnUrl, jeśli nie - przekieruj do głównej
+      if (returnUrl) {
+        router.push(returnUrl);
+      } else {
+        router.push("/");
+      }
+    }
+  }, [user, returnUrl, router]);
+
   if (user) {
-    router.push("/");
     return null;
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push("/");
-    } catch (error) {
-      setError("Błąd logowania: " + error.message);
-    } finally {
-      setLoading(false);
-    }
+    // Ustaw persistence na sesję przeglądarki
+    setPersistence(auth, browserSessionPersistence)
+      .then(() => {
+        // Po ustawieniu persistence, zaloguj użytkownika
+        return signInWithEmailAndPassword(auth, email, password);
+      })
+      .then((userCredential) => {
+        // Po udanym logowaniu, przekieruj do returnUrl lub głównej
+        if (returnUrl) {
+          router.push(returnUrl);
+        } else {
+          router.push("/");
+        }
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+
+        // Wyświetl przyjazny komunikat błędu w Alert
+        if (errorCode === "auth/invalid-credential") {
+          setError("Nieprawidłowy email lub hasło");
+        } else if (errorCode === "auth/user-not-found") {
+          setError("Nie znaleziono użytkownika z tym adresem email");
+        } else if (errorCode === "auth/wrong-password") {
+          setError("Nieprawidłowe hasło");
+        } else if (errorCode === "auth/invalid-email") {
+          setError("Nieprawidłowy format adresu email");
+        } else {
+          setError(`Błąd logowania: ${errorMessage}`);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -52,8 +96,27 @@ export default function SignInPage() {
           </h2>
 
           {error && (
-            <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {error}
+            <div
+              role="alert"
+              className="mb-4 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded"
+            >
+              <div className="flex items-start">
+                <svg
+                  className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <div>
+                  <p className="font-medium">Błąd logowania</p>
+                  <p className="text-sm">{error}</p>
+                </div>
+              </div>
             </div>
           )}
 
