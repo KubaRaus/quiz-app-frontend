@@ -24,11 +24,22 @@ export default function QuizDemoPage() {
     // Save to Firestore
     if (user) {
       try {
+        const timestamp = serverTimestamp();
         await addDoc(collection(db, "quiz-results"), {
           userId: user.uid,
           userEmail: user.email,
-          ...newResult,
-          createdAt: serverTimestamp(),
+          quizType: result.type,
+          questionTitle: result.questionTitle || "Quiz Question",
+          score: result.correct ? 1 : 0,
+          totalQuestions: 1,
+          answers:
+            result.selectedAnswers ||
+            result.matches ||
+            result.filledAnswers ||
+            [],
+          isCorrect: result.correct,
+          completedAt: timestamp,
+          timeSpent: result.timeSpent || 0,
         });
         console.log("Result saved to Firestore");
       } catch (error) {

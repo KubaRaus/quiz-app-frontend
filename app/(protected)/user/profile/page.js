@@ -3,43 +3,96 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { updateProfile } from "firebase/auth";
+import { db } from "@/lib/firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 export default function ProfilePage() {
   const { user } = useAuth();
   const [displayName, setDisplayName] = useState("");
   const [photoURL, setPhotoURL] = useState("");
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [zipCode, setZipCode] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
 
   // Załaduj aktualne dane użytkownika do formularza
   useEffect(() => {
-    if (user) {
-      setDisplayName(user.displayName || "");
-      setPhotoURL(user.photoURL || "");
-    }
+    const loadUserData = async () => {
+      if (user) {
+        setDataLoading(true);
+
+        // Załaduj dane z Authentication
+        setDisplayName(user.displayName || "");
+        setPhotoURL(user.photoURL || "");
+
+        // Załaduj adres z Firestore
+        try {
+          const snapshot = await getDoc(doc(db, "users", user?.uid));
+          if (snapshot.exists()) {
+            const data = snapshot.data();
+            const address = data.address;
+
+            if (address) {
+              setStreet(address.street || "");
+              setCity(address.city || "");
+              setZipCode(address.zipCode || "");
+            }
+          }
+        } catch (error) {
+          console.error("Error loading user data: ", error);
+          // Nie wyświetlamy błędu jeśli użytkownik nie ma jeszcze dokumentu
+        } finally {
+          setDataLoading(false);
+        }
+      }
+    };
+
+    loadUserData();
   }, [user]);
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
     setLoading(true);
 
-    updateProfile(user, {
-      displayName: displayName,
-      photoURL: photoURL,
-    })
-      .then(() => {
-        console.log("Profile updated");
-        setSuccess("Profil został zaktualizowany pomyślnie!");
-      })
-      .catch((error) => {
-        setError(error.message);
-      })
-      .finally(() => {
-        setLoading(false);
+    try {
+      // Aktualizacja profilu w Authentication
+      await updateProfile(user, {
+        displayName: displayName,
+        photoURL: photoURL,
       });
+
+      // Zapis adresu do Firestore
+      await setDoc(doc(db, "users", user?.uid), {
+        displayName: displayName,
+        email: user?.email,
+        photoURL: photoURL,
+        address: {
+          street: street,
+          city: city,
+          zipCode: zipCode,
+        },
+        updatedAt: new Date(),
+      });
+
+      console.log("Profile and address updated successfully");
+      setSuccess("Profil i adres zostały zaktualizowane pomyślnie!");
+    } catch (error) {
+      console.error("Error updating profile: ", error);
+      if (error.code === "permission-denied") {
+        setError(
+          "Brak uprawnień do zapisu danych. Sprawdź reguły bezpieczeństwa Firestore."
+        );
+      } else {
+        setError("Błąd aktualizacji profilu: " + error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -145,7 +198,8 @@ export default function ProfilePage() {
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="Wprowadź swoją nazwę"
-                      className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                      disabled={dataLoading}
+                      className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out disabled:bg-gray-100 disabled:cursor-wait"
                     />
                   </div>
 
@@ -169,7 +223,7 @@ export default function ProfilePage() {
                   </div>
 
                   {/* Photo URL */}
-                  <div className="relative mb-6">
+                  <div className="relative mb-4">
                     <label
                       htmlFor="photoURL"
                       className="leading-7 text-sm text-gray-600"
@@ -183,20 +237,92 @@ export default function ProfilePage() {
                       value={photoURL}
                       onChange={(e) => setPhotoURL(e.target.value)}
                       placeholder="https://example.com/avatar.jpg"
-                      className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                      disabled={dataLoading}
+                      className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out disabled:bg-gray-100 disabled:cursor-wait"
                     />
                     <p className="text-xs text-gray-500 mt-1">
                       Wprowadź URL do swojego zdjęcia profilowego
                     </p>
                   </div>
 
+                  {/* Address Section */}
+                  <div className="mb-6 pb-6 border-t border-gray-200 pt-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                      Adres
+                    </h3>
+
+                    {/* Street */}
+                    <div className="relative mb-4">
+                      <label
+                        htmlFor="street"
+                        className="leading-7 text-sm text-gray-600"
+                      >
+                        Ulica
+                      </label>
+                      <input
+                        type="text"
+                        id="street"
+                        name="street"
+                        value={street}
+                        onChange={(e) => setStreet(e.target.value)}
+                        placeholder="np. Marszałkowska 123"
+                        disabled={dataLoading}
+                        className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out disabled:bg-gray-100 disabled:cursor-wait"
+                      />
+                    </div>
+
+                    {/* City */}
+                    <div className="relative mb-4">
+                      <label
+                        htmlFor="city"
+                        className="leading-7 text-sm text-gray-600"
+                      >
+                        Miasto
+                      </label>
+                      <input
+                        type="text"
+                        id="city"
+                        name="city"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        placeholder="np. Warszawa"
+                        disabled={dataLoading}
+                        className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out disabled:bg-gray-100 disabled:cursor-wait"
+                      />
+                    </div>
+
+                    {/* Zip Code */}
+                    <div className="relative mb-4">
+                      <label
+                        htmlFor="zipCode"
+                        className="leading-7 text-sm text-gray-600"
+                      >
+                        Kod pocztowy
+                      </label>
+                      <input
+                        type="text"
+                        id="zipCode"
+                        name="zipCode"
+                        value={zipCode}
+                        onChange={(e) => setZipCode(e.target.value)}
+                        placeholder="np. 00-001"
+                        disabled={dataLoading}
+                        className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out disabled:bg-gray-100 disabled:cursor-wait"
+                      />
+                    </div>
+                  </div>
+
                   {/* Submit Button */}
                   <button
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || dataLoading}
                     className="w-full text-white bg-indigo-500 border-0 py-3 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? "Zapisywanie..." : "Zapisz zmiany"}
+                    {dataLoading
+                      ? "Ładowanie danych..."
+                      : loading
+                      ? "Zapisywanie..."
+                      : "Zapisz zmiany"}
                   </button>
                 </form>
 

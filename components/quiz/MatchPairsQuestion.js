@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function MatchPairsQuestion({
   title,
@@ -11,12 +11,15 @@ export default function MatchPairsQuestion({
   const [matches, setMatches] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [results, setResults] = useState({});
+  const [shuffledRight, setShuffledRight] = useState([]);
+  const [isClient, setIsClient] = useState(false);
 
-  // Shuffle right items for display
-  const [shuffledRight] = useState(() => {
+  // Shuffle right items only on client to avoid hydration mismatch
+  useEffect(() => {
+    setIsClient(true);
     const rightItems = pairs.map((p, i) => ({ value: p.right, index: i }));
-    return rightItems.sort(() => Math.random() - 0.5);
-  });
+    setShuffledRight(rightItems.sort(() => Math.random() - 0.5));
+  }, [pairs]);
 
   const handleMatch = (leftIndex, rightValue) => {
     if (submitted) return;
@@ -45,6 +48,7 @@ export default function MatchPairsQuestion({
     if (onSubmit) {
       onSubmit({
         type: "match-pairs",
+        questionTitle: title,
         matches,
         correct: allCorrect,
       });
@@ -56,6 +60,22 @@ export default function MatchPairsQuestion({
     setSubmitted(false);
     setResults({});
   };
+
+  // Render placeholder during SSR
+  if (!isClient) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">
+        <h3 className="text-xl font-semibold text-gray-900 mb-4">{title}</h3>
+        <div
+          className="text-gray-700 mb-4"
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">

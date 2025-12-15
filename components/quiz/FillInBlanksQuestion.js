@@ -38,7 +38,9 @@ export default function FillInBlanksQuestion({
     if (onSubmit) {
       onSubmit({
         type: "fill-in-blanks",
+        questionTitle: title,
         answers,
+        filledAnswers: Object.values(answers),
         correct: allCorrect,
       });
     }

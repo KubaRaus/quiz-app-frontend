@@ -24,7 +24,9 @@ export default function SingleChoiceQuestion({
     if (onSubmit) {
       onSubmit({
         type: "single-choice",
+        questionTitle: title,
         answer: selectedOption,
+        selectedAnswers: [options[selectedOption]],
         correct,
       });
     }

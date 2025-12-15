@@ -40,7 +40,9 @@ export default function MultipleChoiceQuestion({
     if (onSubmit) {
       onSubmit({
         type: "multiple-choice",
+        questionTitle: title,
         answers: selectedOptions,
+        selectedAnswers: selectedOptions.map((idx) => options[idx]),
         correct,
       });
     }
