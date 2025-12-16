@@ -191,4 +191,4 @@ service cloud.firestore {
   }
 }
 ```
-Wersja Live aplikacji: https://quiz-1m2uvejxb-jakub-raus-projects.vercel.app/
+Wersja Live aplikacji: https://quiz-app-zeta-dusky.vercel.app/
